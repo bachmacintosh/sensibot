@@ -10,7 +10,7 @@ compatibility_date = "2022-02-11"
 format = "service-worker"
 
 [triggers]
-crons = ["0,30 * * * *"]
+crons = ["0 * * * *"]
 # crons = ["*/10 * * * *"]
 
 # [secrets]
