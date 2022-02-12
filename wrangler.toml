@@ -1,0 +1,23 @@
+name = "sensibot"
+type = "javascript"
+
+account_id = "a1d46f5c53a37a75f82cd8e320855c37"
+workers_dev = true
+
+compatibility_date = "2022-02-11"
+
+[build.upload]
+format = "service-worker"
+
+[triggers]
+crons = ["0,30 * * * *"]
+# crons = ["*/10 * * * *"]
+
+# [secrets]
+# TOMORROW_API_KEY
+# TOMORROW_LOCATION_ID
+# SENSIBO_API_KEY
+# SENSIBO_DEVICE_ID
+# DISCORD_WEBHOOK_URL
+# DISCORD_BOT_TOKEN
+# DISCORD_CHANNEL_ID
