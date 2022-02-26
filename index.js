@@ -42,8 +42,8 @@ async function fetchSensibo() {
 
 async function handleAcState(event, tomorrow, sensibo) {
   const runTime = new Date(event.scheduledTime);
-  const outdoorTemp = Math.round(tomorrow.temperature);
-  const roomTemp = Math.round((sensibo.measurements.temperature * 1.8) + 32);
+  const outdoorTemp = Math.floor(tomorrow.temperature);
+  const roomTemp = Math.floor((sensibo.measurements.temperature * 1.8) + 32);
 
   if (sensibo.acState.on === true) {
     if (sensibo.acState.mode === "cool" || sensibo.acState.mode === "dry") {
