@@ -41,7 +41,9 @@ async function fetchSensibo() {
 }
 
 async function handleAcState(event, tomorrow, sensibo) {
-  const runTime = new Date(event.scheduledTime);
+  const dateOptions = {timeZone: "America/New_York"};
+  const date = new Date().toLocaleString("en-US", dateOptions);
+  const runTime = new Date(date).getHours();
   const outdoorTemp = Math.floor(tomorrow.temperature);
   const roomTemp = Math.floor((sensibo.measurements.temperature * 1.8) + 32);
 
@@ -50,7 +52,7 @@ async function handleAcState(event, tomorrow, sensibo) {
       if (outdoorTemp < 65 && roomTemp < 75) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 65°F`, true, "Fan", 70);
-      } else if (runTime.getHours() >= 5 && runTime.getHours() < 13) {
+      } else if (runTime < 8) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, "Time is after 12:00AM", true, "Fan", 70);
       } else {
@@ -59,11 +61,18 @@ async function handleAcState(event, tomorrow, sensibo) {
     }
     if (sensibo.acState.mode === "fan") {
       if (outdoorTemp >= 75 && outdoorTemp < 122) {
-        if (runTime.getHours() < 5 || runTime.getHours() >= 13) {
+        if (runTime >= 8) {
           await turnAcOn("cool", 70);
           await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F >= 75°F`, true, "Cool", 70);
         } else {
           await sendToDiscord(false, `Outdoor Temp ${outdoorTemp}°F, but deferring Cool Mode until 8:00AM`, true, "Cool", 70);
+        }
+      } else if (roomTemp >= 75) {
+        if (runTime >= 8) {
+          await turnAcOn("cool", 70);
+          await sendToDiscord(true, `Room Temp ${outdoorTemp}°F >= 75°F`, true, "Cool", 70);
+        } else {
+          await sendToDiscord(false, `Room Temp ${outdoorTemp}°F, but deferring Cool Mode until 8:00AM`, true, "Cool", 70);
         }
       }
     }
@@ -71,7 +80,7 @@ async function handleAcState(event, tomorrow, sensibo) {
       if (outdoorTemp < -22) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < -22°F`, false, "Heat", 65);
-      } else if (runTime.getHours() >= 3 && runTime.getHours() < 13) {
+      } else if (runTime >= 22 || runTime < 8) {
         await sendToDiscord(false, "Heat Mode will stay on between 10:00PM-8:00AM", true, "Heat", 65);
       } else if (roomTemp >= 75) {
         await turnAcOff(sensibo);
@@ -84,7 +93,7 @@ async function handleAcState(event, tomorrow, sensibo) {
       }
     }
   } else if (sensibo.acState.on === false && sensibo.acState.mode === "heat") {
-    if ((runTime.getHours() >= 3 && runTime.getHours() < 13) && outdoorTemp > -22 && outdoorTemp < 35) {
+    if ((runTime >= 22 || runTime < 8) && outdoorTemp > -22 && outdoorTemp < 35) {
       await turnAcOn("heat", 65);
       await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 35°F tonight`, true, "Heat", 65);
     } else if (roomTemp < 70 && outdoorTemp > -22 && outdoorTemp < 35) {
