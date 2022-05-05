@@ -51,7 +51,7 @@ async function handleAcState(event, tomorrow, sensibo) {
     if (sensibo.acState.mode === "cool" || sensibo.acState.mode === "dry") {
       if (outdoorTemp < 60 && roomTemp < 75) {
         await turnAcOff(sensibo);
-        await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 65°F`, true, "Fan", 70);
+        await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 60°F`, true, "Fan", 70);
       } else if (runTime < 8) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, "Time is after 12:00AM", true, "Fan", 70);
