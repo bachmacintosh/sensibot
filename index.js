@@ -60,19 +60,12 @@ async function handleAcState(event, tomorrow, sensibo) {
       }
     }
     if (sensibo.acState.mode === "fan") {
-      if (outdoorTemp >= 75 && outdoorTemp < 122) {
+      if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
         if (runTime >= 8) {
           await turnAcOn("cool", 70);
-          await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F >= 75°F`, true, "Cool", 70);
+          await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp >= ${roomTemp}°F`, true, "Cool", 70);
         } else {
-          await sendToDiscord(false, `Outdoor Temp ${outdoorTemp}°F, but deferring Cool Mode until 8:00AM`, true, "Cool", 70);
-        }
-      } else if (roomTemp >= 75) {
-        if (runTime >= 8) {
-          await turnAcOn("cool", 70);
-          await sendToDiscord(true, `Room Temp ${outdoorTemp}°F >= 75°F`, true, "Cool", 70);
-        } else {
-          await sendToDiscord(false, `Room Temp ${outdoorTemp}°F, but deferring Cool Mode until 8:00AM`, true, "Cool", 70);
+          await sendToDiscord(false, `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp >= ${roomTemp}°F, but deferring Cool Mode until 8:00AM`, true, "Cool", 70);
         }
       }
     }
