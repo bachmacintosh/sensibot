@@ -49,7 +49,7 @@ async function handleAcState(event, tomorrow, sensibo) {
 
   if (sensibo.acState.on === true) {
     if (sensibo.acState.mode === "cool" || sensibo.acState.mode === "dry") {
-      if (outdoorTemp < 65 && roomTemp < 75) {
+      if (outdoorTemp < 60 && roomTemp < 75) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 65°F`, true, "Fan", 70);
       } else if (runTime < 8) {
