@@ -1,15 +1,60 @@
-addEventListener('scheduled', event => {
-  event.waitUntil(handleScheduled(event));
-});
+type Interval = {
+  startTime: string;
+  values: {
+    temperature: number;
+    temperatureApparent: number;
+  };
+};
 
-async function handleRequest(event) {
-  await handleScheduled(event);
-  return new Response("Hello");
-}
-/**
- * Respond with hello worker text
- * @param {Event} event
- */
+type Timeline = {
+  timestep: string;
+  startTime: string;
+  endTime: string;
+  intervals: Interval[];
+};
+
+type TomorrowResponse = {
+  data: {
+    timelines: Timeline[];
+  }
+};
+
+type SensiboResponse = {
+  status: string;
+  result: {
+    acState: {
+      timestamp: {
+        time: string;
+        secondsAgo: number;
+      };
+      on: boolean;
+      mode: "cool" | "heat" | "dry" | "fan" | "auto";
+      fanLevel: "quiet" | "low" | "medium" | "high" | "auto" | "string";
+      swing: "stopped" | "rangeFull";
+      light: "on" | "off";
+    };
+    measurements: {
+      time: {
+        time: string;
+        secondsAgo: number;
+      };
+      temperature: number;
+      humidity: number;
+      feelsLike: number;
+      rssi: number;
+    };
+  };
+};
+
+export default {
+  fetch(request, env, context) {
+    return new Response("Hello");
+  },
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(handleScheduled(event));
+  },
+};
+
 async function handleScheduled(event) {
   const tomorrow = await fetchTomorrow();
   const sensibo = await fetchSensibo();
@@ -29,26 +74,24 @@ async function fetchTomorrow() {
     headers,
   };
   const response = await fetch(url, init);
-  const json = await response.json();
-  return json.data.timelines[0].intervals[0].values;
+  return await response.json() as TomorrowResponse;
 }
 
 async function fetchSensibo() {
   const url = `https://home.sensibo.com/api/v2/pods/${SENSIBO_DEVICE_ID}?apiKey=${SENSIBO_API_KEY}&fields=acState,measurements`;
   const response = await fetch(url);
-  const json = await response.json();
-  return json.result;
+  return await response.json() as SensiboResponse;
 }
 
-async function handleAcState(event, tomorrow, sensibo) {
+async function handleAcState(event, tomorrow: TomorrowResponse, sensibo: SensiboResponse) {
   const dateOptions = {timeZone: "America/New_York"};
   const date = new Date().toLocaleString("en-US", dateOptions);
   const runTime = new Date(date).getHours();
-  const outdoorTemp = Math.floor(tomorrow.temperature);
-  const roomTemp = Math.floor((sensibo.measurements.temperature * 1.8) + 32);
+  const outdoorTemp = Math.floor(tomorrow.data.timelines[0].intervals[0].values.temperature);
+  const roomTemp = Math.floor((sensibo.result.measurements.temperature * 1.8) + 32);
 
-  if (sensibo.acState.on === true) {
-    if (sensibo.acState.mode === "cool" || sensibo.acState.mode === "dry") {
+  if (sensibo.result.acState.on) {
+    if (sensibo.result.acState.mode === "cool" || sensibo.result.acState.mode === "dry") {
       if (outdoorTemp < 60 && roomTemp < 75) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 60°F`, true, "Fan", 70);
@@ -59,7 +102,7 @@ async function handleAcState(event, tomorrow, sensibo) {
         await sendToDiscord(false, `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still warm`, true, "Fan", 70);
       }
     }
-    if (sensibo.acState.mode === "fan") {
+    if (sensibo.result.acState.mode === "fan") {
       if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
         if (runTime >= 8) {
           await turnAcOn("cool", 70);
@@ -69,7 +112,7 @@ async function handleAcState(event, tomorrow, sensibo) {
         }
       }
     }
-    if (sensibo.acState.mode === "heat") {
+    if (sensibo.result.acState.mode === "heat") {
       if (outdoorTemp < -22) {
         await turnAcOff(sensibo);
         await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < -22°F`, false, "Heat", 65);
@@ -85,7 +128,7 @@ async function handleAcState(event, tomorrow, sensibo) {
         await sendToDiscord(false, `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still cold`, true, "Heat", 65);
       }
     }
-  } else if (sensibo.acState.on === false && sensibo.acState.mode === "heat") {
+  } else if (!sensibo.result.acState.on && sensibo.result.acState.mode === "heat") {
     if ((runTime >= 22 || runTime < 8) && outdoorTemp > -22 && outdoorTemp < 35) {
       await turnAcOn("heat", 65);
       await sendToDiscord(true, `Outdoor Temp ${outdoorTemp}°F < 35°F tonight`, true, "Heat", 65);
