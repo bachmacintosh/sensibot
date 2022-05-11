@@ -78,7 +78,7 @@ async function handleScheduled(event: ScheduledEvent, env: Env) {
 async function fetchTomorrow(env: Env) {
   const url = `https://api.tomorrow.io/v4/timelines?location=${env.TOMORROW_LOCATION_ID}&fields=temperature,temperatureApparent&units=imperial&timesteps=current`;
   const headers = new Headers({
-    apiKey: TOMORROW_API_KEY
+    apiKey: env.TOMORROW_API_KEY
   });
   const init = {
     headers,
@@ -208,9 +208,9 @@ async function turnAcOff(env: Env, sensibo: SensiboResponse) {
 }
 
 async function sendToDiscord(env: Env, updated: boolean, reason: string, power: boolean, mode: string, temp: number) {
-  const url = `https://discord.com/api/v9/channels/${DISCORD_CHANNEL_ID}/messages`;
+  const url = `https://discord.com/api/v9/channels/${env.DISCORD_CHANNEL_ID}/messages`;
   const headers = new Headers({
-    Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+    Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
     "Content-Type": "application/json"
   });
   const fields = [];
