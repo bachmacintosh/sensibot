@@ -4,8 +4,8 @@ main = "./src/index.ts"
 compatibility_date = "2022-05-11"
 
 [triggers]
-# crons = ["0 * * * *"]
-crons = ["*/10 * * * *"]
+crons = ["0 * * * *"]
+# crons = ["*/10 * * * *"]
 
 # [secrets]
 # TOMORROW_API_KEY
