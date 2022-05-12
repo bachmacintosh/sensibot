@@ -110,6 +110,14 @@ async function handleAcThatIsFanning (
         temp: 70,
       };
     }
+  } else {
+    embed = {
+      updated: false,
+      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp ${roomTemp}°F are still cool`,
+      power: true,
+      mode: "Fan",
+      temp: 70,
+    };
   }
 }
 
