@@ -30,17 +30,17 @@ export default {
       return new Response(`Something went wrong`, { status: 500, },);
     }
   },
-  async scheduled (
+  scheduled (
     event: ScheduledEvent,
     env: Env,
     context: Context,
-  ): Promise<void> {
+  ): void {
     const sentry = new Toucan({
       dsn: "dsn...",
       context,
     },);
     try {
-      await handle(env,);
+      context.waitUntil(handle(env,),);
     } catch (err) {
       sentry.captureException(err,);
     }
