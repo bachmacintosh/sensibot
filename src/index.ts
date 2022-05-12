@@ -36,7 +36,7 @@ export default {
     context: Context,
   ): void {
     const sentry = new Toucan({
-      dsn: "dsn...",
+      dsn: "https://25641ba90b33429baa4c313eaa8d57d5@o79685.ingest.sentry.io/6397906",
       context,
     },);
     try {
