@@ -96,7 +96,7 @@ async function handleAcThatIsFanning (
       await turnAcOn(env, "cool", 70,);
       embed = {
         updated: true,
-        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp >= ${roomTemp}°F`,
+        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F`,
         power: true,
         mode: "Cool",
         temp: 70,
@@ -104,7 +104,7 @@ async function handleAcThatIsFanning (
     } else {
       embed = {
         updated: false,
-        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp >= ${roomTemp}°F, but deferring Cool Mode until 8:00AM`,
+        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F, but deferring Cool Mode until 8:00AM`,
         power: true,
         mode: "Fan",
         temp: 70,
