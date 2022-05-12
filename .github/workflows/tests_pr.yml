@@ -20,7 +20,3 @@ jobs:
         run: npm run check-types
       - name: Run ESLint
         run: npm run lint
-      - name: Dry Run Deploy to CloudFlare
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          command: "publish --dry-run --outdir=dist"
