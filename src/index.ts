@@ -6,6 +6,8 @@ import fetchSensibo from "./functions/sensibo/fetchSensibo";
 import fetchTomorrow from "./functions/tomorrow/fetchTomorrow";
 import handleAcState from "./functions/sensibo/handleAcState";
 
+// Dummy PR
+
 export default {
   fetch (
     request: Request, env: Env, context: Context,
