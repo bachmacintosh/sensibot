@@ -1,0 +1,26 @@
+name: Tests (PR)
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    name: Test Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check Types
+        run: npm run check-types
+      - name: Run ESLint
+        run: npm run lint
+      - name: Dry Run Deploy to CloudFlare
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          command: "publish --dry-run --outdir=dist"
