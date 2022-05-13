@@ -56,20 +56,20 @@ async function handleAcThatIsCooling (
   outdoorTemp: number,
   roomTemp: number,
 ) {
-  if (outdoorTemp < 60 && roomTemp < 75) {
-    await turnAcOff(env, sensibo,);
-    embed = {
-      updated: true,
-      reason: `Outdoor Temp ${outdoorTemp}°F < 60°F`,
-      power: true,
-      mode: "Fan",
-      temp: 70,
-    };
-  } else if (runTime < 8) {
+  if (runTime < 8) {
     await turnAcOff(env, sensibo,);
     embed = {
       updated: true,
       reason: "Time is after 12:00AM",
+      power: true,
+      mode: "Fan",
+      temp: 70,
+    };
+  } else if (outdoorTemp < 60 && roomTemp < 75) {
+    await turnAcOff(env, sensibo,);
+    embed = {
+      updated: true,
+      reason: `Outdoor Temp ${outdoorTemp}°F < 60°F`,
       power: true,
       mode: "Fan",
       temp: 70,
