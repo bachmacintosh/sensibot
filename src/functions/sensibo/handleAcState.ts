@@ -4,8 +4,6 @@ import turnAcOff from "./turnAcOff";
 import turnAcOn from "./turnAcOn";
 
 const dateOptions = { timeZone: "America/New_York", };
-const date = new Date().toLocaleString("en-US", dateOptions,);
-const runTime = new Date(date,).getHours();
 
 let embed = {
   updated: false,
@@ -56,6 +54,8 @@ async function handleAcThatIsCooling (
   outdoorTemp: number,
   roomTemp: number,
 ) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
   if (runTime < 8) {
     await turnAcOff(env, sensibo,);
     embed = {
@@ -92,6 +92,8 @@ async function handleAcThatIsFanning (
   roomTemp: number,
 ) {
   if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
+    const date = new Date().toLocaleString("en-US", dateOptions,);
+    const runTime = new Date(date,).getHours();
     if (runTime >= 8) {
       await turnAcOn(env, "cool", 70,);
       embed = {
@@ -127,6 +129,8 @@ async function handleAcThatIsHeating (
   outdoorTemp: number,
   roomTemp: number,
 ) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
   if (outdoorTemp < -22) {
     await turnAcOff(env, sensibo,);
     embed = {
@@ -179,6 +183,8 @@ async function handleAcWithHeatOff (
   outdoorTemp: number,
   roomTemp: number,
 ) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
   if ((runTime >= 22 || runTime < 8)
       && outdoorTemp > -22 && outdoorTemp < 35) {
     await turnAcOn(env, "heat", 65,);
