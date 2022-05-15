@@ -91,10 +91,10 @@ async function handleAcThatIsFanning (
   outdoorTemp: number,
   roomTemp: number,
 ) {
-  if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
-    const date = new Date().toLocaleString("en-US", dateOptions,);
-    const runTime = new Date(date,).getHours();
-    if (runTime >= 8) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
+  if (runTime >= 8) {
+    if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
       await turnAcOn(env, "cool", 70,);
       embed = {
         updated: true,
@@ -106,7 +106,7 @@ async function handleAcThatIsFanning (
     } else {
       embed = {
         updated: false,
-        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F, but deferring Cool Mode until 8:00AM`,
+        reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp ${roomTemp}°F are still cool`,
         power: true,
         mode: "Fan",
         temp: 70,
@@ -115,7 +115,7 @@ async function handleAcThatIsFanning (
   } else {
     embed = {
       updated: false,
-      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp ${roomTemp}°F are still cool`,
+      reason: `Fan mode will stay on between 12:00AM-8:00AM`,
       power: true,
       mode: "Fan",
       temp: 70,
