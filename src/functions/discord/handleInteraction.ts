@@ -22,11 +22,12 @@ export default async function handleInteraction (
     }
 
     const rawBody = await request.text();
+    const encoder = new TextEncoder();
 
     const authorized = nacl.sign.detached.verify(
-      Buffer.from(timestamp + rawBody,),
-      Buffer.from(signature, "hex",),
-      Buffer.from(env.DISCORD_PUBLIC_KEY, "hex",),
+      encoder.encode(timestamp + rawBody,),
+      encoder.encode(signature,),
+      encoder.encode(env.DISCORD_PUBLIC_KEY,),
     );
 
     if (!authorized) {

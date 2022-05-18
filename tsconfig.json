@@ -4,7 +4,7 @@
     "target": "ES2020",
     "module": "CommonJS",
     "lib": ["ES2020"],
-    "types": ["@cloudflare/workers-types", "node"]
+    "types": ["@cloudflare/workers-types"]
   },
   "include": [
     "./**/*.*ts",
