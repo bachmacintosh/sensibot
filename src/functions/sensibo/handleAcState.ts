@@ -1,4 +1,6 @@
 import type { Env, SensiboResponse, TomorrowResponse, } from "../../types";
+import deletePreviousMessage from "../discord/deletePreviousMessage";
+import getPreviousMessage from "../discord/getPreviousMessage";
 import postAcStatusUpdate from "../discord/postAcStatusUpdate";
 import turnAcOff from "./turnAcOff";
 import turnAcOn from "./turnAcOn";
@@ -44,6 +46,10 @@ export default async function handleAcState (
       mode: "Cool",
       temp: 70,
     };
+  }
+  const previousMessageId = await getPreviousMessage(env,);
+  if (previousMessageId !== null) {
+    await deletePreviousMessage(previousMessageId, env,);
   }
   await postAcStatusUpdate(env, embed,);
 }
