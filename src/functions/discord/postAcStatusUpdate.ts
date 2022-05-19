@@ -2,12 +2,13 @@ import type {
   AcUpdateEmbed,
   Env,
 } from "../../types";
+import { APIVersion, } from "discord-api-types/v10";
 import type { RESTPostAPIChannelMessageJSONBody, } from "discord-api-types/v10";
 
 export default async function postAcStatusUpdate (
   env: Env,
   embed: AcUpdateEmbed,): Promise<void> {
-  const url = `https://discord.com/api/v9/channels/${env.DISCORD_CHANNEL_ID}/messages`;
+  const url = `https://discord.com/api/v${APIVersion}/channels/${env.DISCORD_CHANNEL_ID}/messages`;
   const headers = new Headers({
     Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
     "Content-Type": "application/json",
