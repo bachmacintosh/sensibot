@@ -1,4 +1,3 @@
-import * as nacl from "tweetnacl";
 import type {
   APIInteraction,
   APIInteractionResponsePong,
@@ -8,6 +7,7 @@ import {
   InteractionType,
 } from "discord-api-types/v10";
 import type { Env, } from "../../types";
+import verifyKey from "../util/verifyKey";
 
 export default async function handleInteraction (
   request: Request,
@@ -21,13 +21,13 @@ export default async function handleInteraction (
       return new Response("Unauthorized, nice try.", { status: 401, },);
     }
 
-    const rawBody = await request.text();
-    const encoder = new TextEncoder();
+    const rawBody = await request.clone().arrayBuffer();
 
-    const authorized = nacl.sign.detached.verify(
-      encoder.encode(timestamp + rawBody,),
-      encoder.encode(signature,),
-      encoder.encode(env.DISCORD_PUBLIC_KEY,),
+    const authorized = verifyKey(
+      rawBody,
+      signature,
+      timestamp,
+      env.DISCORD_PUBLIC_KEY,
     );
 
     if (!authorized) {
