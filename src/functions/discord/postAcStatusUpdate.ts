@@ -2,7 +2,7 @@ import type {
   AcUpdateEmbed,
   Env,
 } from "../../types";
-import { APIVersion, } from "discord-api-types/v10";
+import APIVersion from "../../const/discord/ourAPIVersion";
 import type { RESTPostAPIChannelMessageJSONBody, } from "discord-api-types/v10";
 
 export default async function postAcStatusUpdate (
