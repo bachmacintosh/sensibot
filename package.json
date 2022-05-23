@@ -16,7 +16,7 @@
   "author": "Collin Bachman <collin@bachman.io>",
   "license": "MIT",
   "dependencies": {
-    "@cloudflare/workers-types": "^3.10.0",
+    "@cloudflare/workers-types": "^3.11.0",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "discord-api-types": "^0.33.0",
