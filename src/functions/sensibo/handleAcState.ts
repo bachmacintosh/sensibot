@@ -154,7 +154,7 @@ async function handleAcThatIsDrying (
       updated: true,
       reason: `Humidity ${humidity}% < 50%, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
       power: true,
-      mode: "Fan",
+      mode: "Cool",
       temp: 70,
     };
   } else {
