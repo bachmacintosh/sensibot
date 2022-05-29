@@ -24,14 +24,30 @@ export default async function handleAcState (
       = Math.floor(tomorrow.data.timelines[0].intervals[0].values.temperature,);
   const roomTemp
       = Math.floor((sensibo.result.measurements.temperature * 1.8) + 32,);
+  const humidity = Math.floor(sensibo.result.measurements.humidity,);
 
   if (sensibo.result.acState.on) {
-    if (sensibo.result.acState.mode === "cool"
-            || sensibo.result.acState.mode === "dry") {
-      await handleAcThatIsCooling(env, sensibo, outdoorTemp, roomTemp,);
+    if (sensibo.result.acState.mode === "cool") {
+      await handleAcThatIsCooling(
+        env, sensibo, outdoorTemp, roomTemp, humidity,
+      );
+    }
+    if (sensibo.result.acState.mode === "dry") {
+      await handleAcThatIsDrying(
+        env,
+        sensibo,
+        outdoorTemp,
+        roomTemp,
+        humidity,
+      );
     }
     if (sensibo.result.acState.mode === "fan") {
-      await handleAcThatIsFanning(env, sensibo, outdoorTemp, roomTemp,);
+      await handleAcThatIsFanning(
+        env,
+        sensibo,
+        outdoorTemp,
+        roomTemp,
+        humidity,);
     }
     if (sensibo.result.acState.mode === "heat") {
       await handleAcThatIsHeating(env, sensibo, outdoorTemp, roomTemp,);
@@ -59,6 +75,7 @@ async function handleAcThatIsCooling (
   sensibo: SensiboResponse,
   outdoorTemp: number,
   roomTemp: number,
+  humidity: number,
 ) {
   const date = new Date().toLocaleString("en-US", dateOptions,);
   const runTime = new Date(date,).getHours();
@@ -80,12 +97,68 @@ async function handleAcThatIsCooling (
       mode: "Fan",
       temp: 70,
     };
+  } else if (humidity >= 60) {
+    await turnAcOn(env, "dry", 70,);
+    embed = {
+      updated: true,
+      reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%`,
+      power: true,
+      mode: "Dry",
+      temp: 70,
+    };
   } else {
     embed = {
       updated: false,
-      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still warm`,
+      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still warm, Humidity ${humidity}% < 60%`,
       power: true,
       mode: "Cool",
+      temp: 70,
+    };
+  }
+}
+
+async function handleAcThatIsDrying (
+  env: Env,
+  sensibo: SensiboResponse,
+  outdoorTemp: number,
+  roomTemp: number,
+  humidity: number,
+) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
+  if (runTime < 8) {
+    await turnAcOff(env, sensibo,);
+    embed = {
+      updated: true,
+      reason: "Time is after 12:00AM",
+      power: true,
+      mode: "Fan",
+      temp: 70,
+    };
+  } else if (outdoorTemp < 60 && roomTemp < 75) {
+    await turnAcOff(env, sensibo,);
+    embed = {
+      updated: true,
+      reason: `Outdoor Temp ${outdoorTemp}°F < 60°F`,
+      power: true,
+      mode: "Fan",
+      temp: 70,
+    };
+  } else if (humidity < 50) {
+    await turnAcOn(env, "cool", 70,);
+    embed = {
+      updated: true,
+      reason: `Humidity ${humidity}% < 50%, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
+      power: true,
+      mode: "Fan",
+      temp: 70,
+    };
+  } else {
+    embed = {
+      updated: false,
+      reason: `Humidity ${humidity}% still >= 50%`,
+      power: true,
+      mode: "Dry",
       temp: 70,
     };
   }
@@ -96,17 +169,27 @@ async function handleAcThatIsFanning (
   sensibo: SensiboResponse,
   outdoorTemp: number,
   roomTemp: number,
+  humidity: number,
 ) {
   const date = new Date().toLocaleString("en-US", dateOptions,);
   const runTime = new Date(date,).getHours();
   if (runTime >= 8) {
-    if ((outdoorTemp >= 60 && outdoorTemp < 122) && roomTemp >= 75) {
+    if (outdoorTemp >= 60 && roomTemp >= 75 && humidity < 60) {
       await turnAcOn(env, "cool", 70,);
       embed = {
         updated: true,
-        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F`,
+        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F, Humidity ${humidity}% < 60%`,
         power: true,
         mode: "Cool",
+        temp: 70,
+      };
+    } else if (outdoorTemp >= 60 && roomTemp >= 75 && humidity >= 60) {
+      await turnAcOn(env, "cool", 70,);
+      embed = {
+        updated: true,
+        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F, Humidity ${humidity}% >= 60%`,
+        power: true,
+        mode: "Dry",
         temp: 70,
       };
     } else {
