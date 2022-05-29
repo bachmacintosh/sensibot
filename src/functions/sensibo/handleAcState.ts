@@ -148,13 +148,13 @@ async function handleAcThatIsDrying (
       mode: "Fan",
       temp: 70,
     };
-  } else if (humidity < 50) {
+  } else if (humidity < 50 || roomTemp < 65) {
     await turnAcOn(env, "cool", 70,);
     embed = {
       updated: true,
-      reason: `Humidity ${humidity}% < 50%, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
+      reason: `Humidity ${humidity}% < 50% or Room Temp ${roomTemp}°F < 65°F, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
       power: true,
-      mode: "Fan",
+      mode: "Cool",
       temp: 70,
     };
   } else {
