@@ -63,11 +63,11 @@ export default async function handleAcState (
       temp: 70,
     };
   }
-  const previousMessages = await getPreviousMessages(env,);
-  if (previousMessages !== null) {
-    const date = new Date().toLocaleString("en-US", dateOptions,);
-    const runTime = new Date(date,).getHours();
-    if (runTime === 0) {
+  const date = new Date().toLocaleString("en-US", dateOptions,);
+  const runTime = new Date(date,).getHours();
+  if (runTime === 0) {
+    const previousMessages = await getPreviousMessages(env,);
+    if (previousMessages !== null) {
       await deletePreviousMessages(previousMessages, env,);
     }
   }
@@ -148,11 +148,11 @@ async function handleAcThatIsDrying (
       mode: "Fan",
       temp: 70,
     };
-  } else if (humidity < 50 || roomTemp < 65) {
+  } else if (humidity < 55 || roomTemp < 65) {
     await turnAcOn(env, "cool", 70,);
     embed = {
       updated: true,
-      reason: `Humidity ${humidity}% < 50% or Room Temp ${roomTemp}°F < 65°F, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
+      reason: `Humidity ${humidity}% < 55% or Room Temp ${roomTemp}°F < 65°F, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
       power: true,
       mode: "Cool",
       temp: 70,
@@ -160,7 +160,7 @@ async function handleAcThatIsDrying (
   } else {
     embed = {
       updated: false,
-      reason: `Humidity ${humidity}% still >= 50%`,
+      reason: `Humidity ${humidity}% still >= 55% or Room Temp ${roomTemp}°F still >= 65°F`,
       power: true,
       mode: "Dry",
       temp: 70,
