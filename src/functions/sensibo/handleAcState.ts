@@ -38,7 +38,6 @@ export default async function handleAcState (
         sensibo,
         outdoorTemp,
         roomTemp,
-        humidity,
       );
     }
     if (sensibo.result.acState.mode === "fan") {
@@ -102,18 +101,29 @@ async function handleAcThatIsCooling (
       temp: 70,
     };
   } else if (humidity >= 60) {
-    await turnAcOn(env, "dry", 70,);
-    embed = {
-      updated: true,
-      reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%`,
-      power: true,
-      mode: "Dry",
-      temp: 70,
-    };
+    const dryModeDelay = await env.KV.get("dry_mode",);
+    if (dryModeDelay === null) {
+      await turnAcOn(env, "dry", 70,);
+      embed = {
+        updated: true,
+        reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%`,
+        power: true,
+        mode: "Dry",
+        temp: 70,
+      };
+    } else {
+      embed = {
+        updated: false,
+        reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%, but Dry Mode already ran today`,
+        power: true,
+        mode: "Cool",
+        temp: 70,
+      };
+    }
   } else {
     embed = {
       updated: false,
-      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still warm, Humidity ${humidity}% < 60%`,
+      reason: `Outdoor Temp ${outdoorTemp}°F and/or Room Temp. ${roomTemp}°F are still warm`,
       power: true,
       mode: "Cool",
       temp: 70,
@@ -126,10 +136,10 @@ async function handleAcThatIsDrying (
   sensibo: SensiboResponse,
   outdoorTemp: number,
   roomTemp: number,
-  humidity: number,
 ) {
   const date = new Date().toLocaleString("en-US", dateOptions,);
   const runTime = new Date(date,).getHours();
+  const dryModeDelay = await env.KV.get("dry_mode",);
   if (runTime < 8) {
     await turnAcOff(env, sensibo,);
     embed = {
@@ -148,21 +158,22 @@ async function handleAcThatIsDrying (
       mode: "Fan",
       temp: 70,
     };
-  } else if (humidity < 55 || roomTemp < 65) {
-    await turnAcOn(env, "cool", 70,);
+  } else if (dryModeDelay === null) {
+    await env.KV.put("dry_mode", "on", { expirationTtl: 86300, },);
     embed = {
-      updated: true,
-      reason: `Humidity ${humidity}% < 55% or Room Temp ${roomTemp}°F < 65°F, but Outdoor Temp ${outdoorTemp}°F >= 60°F`,
+      updated: false,
+      reason: `Dry Mode will stay on for 1 more hour.`,
       power: true,
-      mode: "Cool",
+      mode: "Dry",
       temp: 70,
     };
   } else {
+    await turnAcOn(env, "cool", 70,);
     embed = {
-      updated: false,
-      reason: `Humidity ${humidity}% still >= 55% or Room Temp ${roomTemp}°F still >= 65°F`,
+      updated: true,
+      reason: `Switching from Dry to Cool Mode after 2 Hours`,
       power: true,
-      mode: "Dry",
+      mode: "Cool",
       temp: 70,
     };
   }
@@ -188,14 +199,26 @@ async function handleAcThatIsFanning (
         temp: 70,
       };
     } else if (outdoorTemp >= 60 && roomTemp >= 75 && humidity >= 60) {
-      await turnAcOn(env, "cool", 70,);
-      embed = {
-        updated: true,
-        reason: `Outdoor Temp ${outdoorTemp}°F >= 60°F, Room Temp ${roomTemp}°F >= 75°F, Humidity ${humidity}% >= 60%`,
-        power: true,
-        mode: "Dry",
-        temp: 70,
-      };
+      const dryModeDelay = await env.KV.get("dry_mode",);
+      if (dryModeDelay === null) {
+        await turnAcOn(env, "dry", 70,);
+        embed = {
+          updated: true,
+          reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%`,
+          power: true,
+          mode: "Dry",
+          temp: 70,
+        };
+      } else {
+        await turnAcOn(env, "cool", 70,);
+        embed = {
+          updated: true,
+          reason: `Outdoor Temp ${outdoorTemp}°F and Room Temp ${roomTemp}°F are still warm; Humidity ${humidity}% >= 60%, but Dry Mode already ran today`,
+          power: true,
+          mode: "Cool",
+          temp: 70,
+        };
+      }
     } else {
       embed = {
         updated: false,

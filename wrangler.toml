@@ -2,6 +2,8 @@ name = "sensibot"
 main = "./src/index.ts"
 node_compat = true
 
+kv_namespaces = [{ binding = "KV", id = "e89d016a54a44aa1beb33433a264f741", preview_id = "e77e5de88ac641c98e2c8816a6096cc7" }]
+
 compatibility_date = "2022-05-19"
 
 [triggers]
