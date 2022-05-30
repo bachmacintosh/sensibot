@@ -159,7 +159,7 @@ async function handleAcThatIsDrying (
       temp: 70,
     };
   } else if (dryModeDelay === null) {
-    await env.KV.put("dry_mode", "on", { expirationTtl: 86300, },);
+    await env.KV.put("dry_mode", "on", { expirationTtl: 43000, },);
     embed = {
       updated: false,
       reason: `Dry Mode will stay on for 1 more hour.`,
