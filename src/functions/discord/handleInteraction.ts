@@ -7,27 +7,15 @@ import {
   InteractionType,
 } from "discord-api-types/v10";
 import type { Env, } from "../../types";
-import verifyKey from "../util/verifyKey";
+import verifyRequest from "../util/verifyRequest";
 
 export default async function handleInteraction (
   request: Request,
   env: Env,
 ): Promise<Response> {
   if (request.method === "POST") {
-    const signature = request.headers.get("X-Signature-Ed25519",);
-    const timestamp = request.headers.get("X-Signature-Timestamp",);
-
-    if (signature === null || timestamp === null) {
-      return new Response("Unauthorized, nice try.", { status: 401, },);
-    }
-
-    const rawBody = await request.clone().arrayBuffer();
-
-    const authorized = verifyKey(
-      rawBody,
-      signature,
-      timestamp,
-      env.DISCORD_PUBLIC_KEY,
+    const authorized = await verifyRequest(
+      request, env.DISCORD_PUBLIC_KEY,
     );
 
     if (!authorized) {
